@@ -5,6 +5,7 @@ import sys
 from typing import List
 
 from .vault import Vault
+from .export import VaultExporter
 from .utils import (
     print_error, print_success, print_info, print_warning,
     copy_to_clipboard, get_password
@@ -156,6 +157,58 @@ def cmd_update(args):
         sys.exit(1)
 
 
+def cmd_export(args):
+    """Export vault to file"""
+    vault = Vault()
+
+    # Get master password
+    password = get_password()
+    if not vault.unlock(password):
+        print_error("Failed to unlock vault. Wrong password?")
+        sys.exit(1)
+
+    # Get export password (optional)
+    export_password = None
+    if args.encrypt:
+        export_password = get_password("Export password (leave empty for no encryption): ")
+        if not export_password:
+            print_info("Exporting without additional encryption")
+
+    try:
+        from pathlib import Path
+        output_path = Path(args.output)
+        VaultExporter.export_vault(vault, output_path, export_password)
+        print_success(f"Exported {len(vault._data.credentials)} credentials to {args.output}")
+    except Exception as e:
+        print_error(f"Export failed: {e}")
+        sys.exit(1)
+
+
+def cmd_import(args):
+    """Import vault from file"""
+    vault = Vault()
+
+    # Get master password
+    password = get_password()
+    if not vault.unlock(password):
+        print_error("Failed to unlock vault. Wrong password?")
+        sys.exit(1)
+
+    # Get import password (if needed)
+    import_password = None
+    if args.decrypt:
+        import_password = get_password("Import password: ")
+
+    try:
+        from pathlib import Path
+        input_path = Path(args.input)
+        count = VaultExporter.import_vault(vault, input_path, import_password)
+        print_success(f"Imported {count} credentials from {args.input}")
+    except Exception as e:
+        print_error(f"Import failed: {e}")
+        sys.exit(1)
+
+
 def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(
@@ -201,6 +254,18 @@ def main():
     update_parser.add_argument("--key", "-k", help="New API key/credential")
     update_parser.add_argument("--tag", "-t", action="append", help="New tags (replaces existing)")
     update_parser.set_defaults(func=cmd_update)
+
+    # Export command
+    export_parser = subparsers.add_parser("export", help="Export vault to file")
+    export_parser.add_argument("output", help="Output file path")
+    export_parser.add_argument("--encrypt", "-e", action="store_true", help="Encrypt export with password")
+    export_parser.set_defaults(func=cmd_export)
+
+    # Import command
+    import_parser = subparsers.add_parser("import", help="Import vault from file")
+    import_parser.add_argument("input", help="Input file path")
+    import_parser.add_argument("--decrypt", "-d", action="store_true", help="Decrypt import with password")
+    import_parser.set_defaults(func=cmd_import)
 
     # Parse arguments
     args = parser.parse_args()
