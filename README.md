@@ -100,6 +100,18 @@ clawvault delete github
 clawvault delete github --force
 ```
 
+### Backup & Restore
+
+```bash
+# Export (with optional encryption)
+clawvault export backup.json
+clawvault export backup.enc --encrypt
+
+# Import
+clawvault import backup.json
+clawvault import backup.enc --decrypt
+```
+
 ## Security
 
 ### Encryption
@@ -135,6 +147,8 @@ clawvault list [--tag <tag>] [--verbose]
 clawvault search <query>
 clawvault update <service> [--key <key>] [--tag <tag>...]
 clawvault delete <service> [--force]
+clawvault export <file> [--encrypt]
+clawvault import <file> [--decrypt]
 ```
 
 ## Examples
