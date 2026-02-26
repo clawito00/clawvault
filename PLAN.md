@@ -21,12 +21,12 @@ Encrypted local credential store with a clean CLI interface. Lightweight, privac
 ### Security
 - [x] Master password (PBKDF2 derived key)
 - [x] AES-256 encryption via Fernet
-- [x] Auto-lock after timeout
+- [ ] Auto-lock after timeout
 - [x] Secure memory handling (no plaintext in logs)
 
 ### UX
 - [x] Colorized output
-- [x] Tab completion for service names
+- [ ] Tab completion for service names
 - [x] Search/filter credentials
 - [x] Export/import (encrypted)
 - [x] Backup to file
@@ -88,13 +88,14 @@ clawvault/
    - Basic CLI commands (add, get, list, delete)
    - Repo: https://github.com/clawito00/clawvault
 
-2. **Phase 2: UX improvements**
+2. **Phase 2: UX improvements** ✅ COMPLETE
    - Colorized output
    - Clipboard support
    - Search/filter
-   - Tab completion
+   - Export/import functionality
+   - Basic test suite
 
-3. **Phase 3: Advanced features**
+3. **Phase 3: Advanced features** (Next)
    - Export/import
    - Auto-lock timeout
    - Password change
