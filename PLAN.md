@@ -82,10 +82,11 @@ clawvault/
 
 ## Implementation Steps
 
-1. **Phase 1: Core functionality**
+1. **Phase 1: Core functionality** ✅ COMPLETE
    - Set up project structure
    - Implement encryption/decryption
    - Basic CLI commands (add, get, list, delete)
+   - Repo: https://github.com/clawito00/clawvault
 
 2. **Phase 2: UX improvements**
    - Colorized output
