@@ -103,6 +103,15 @@ clawvault delete github --force
 ### Backup & Restore
 
 ```bash
+# Create timestamped backup
+clawvault backup
+
+# List available backups
+clawvault backups
+
+# Restore from backup
+clawvault restore ~/.clawvault/backups/vault_backup_20260227_030000.json
+
 # Export (with optional encryption)
 clawvault export backup.json
 clawvault export backup.enc --encrypt
@@ -110,6 +119,12 @@ clawvault export backup.enc --encrypt
 # Import
 clawvault import backup.json
 clawvault import backup.enc --decrypt
+```
+
+### Change Master Password
+
+```bash
+clawvault passwd
 ```
 
 ## Security
@@ -147,6 +162,10 @@ clawvault list [--tag <tag>] [--verbose]
 clawvault search <query>
 clawvault update <service> [--key <key>] [--tag <tag>...]
 clawvault delete <service> [--force]
+clawvault passwd                           # Change master password
+clawvault backup                           # Create timestamped backup
+clawvault backups                          # List available backups
+clawvault restore <backup_file>            # Restore from backup
 clawvault export <file> [--encrypt]
 clawvault import <file> [--decrypt]
 ```
@@ -197,7 +216,7 @@ python -m build
 A: No. The master password is used to derive an encryption key, but the password itself is never stored.
 
 **Q: Can I change my master password?**
-A: Coming soon in a future update.
+A: Yes! Use `clawvault passwd` to change your master password. All credentials will be re-encrypted with the new password.
 
 **Q: Where is my data stored?**
 A: Locally in `~/.clawvault/vault.json`. The file is encrypted and only readable by you.

@@ -209,6 +209,91 @@ def cmd_import(args):
         sys.exit(1)
 
 
+def cmd_passwd(args):
+    """Change master password"""
+    vault = Vault()
+
+    # Get current password
+    old_password = get_password("Current master password: ")
+    if not vault.unlock(old_password):
+        print_error("Failed to unlock vault. Wrong password?")
+        sys.exit(1)
+
+    # Get new password
+    new_password = get_password("New master password: ")
+    confirm_password = get_password("Confirm new password: ")
+
+    if new_password != confirm_password:
+        print_error("Passwords do not match")
+        sys.exit(1)
+
+    if len(new_password) < 8:
+        print_error("Password must be at least 8 characters")
+        sys.exit(1)
+
+    # Change password
+    if vault.change_password(old_password, new_password):
+        print_success("Master password changed successfully")
+    else:
+        print_error("Failed to change password")
+        sys.exit(1)
+
+
+def cmd_backup(args):
+    """Create a vault backup"""
+    vault = Vault()
+
+    # Verify password before backup
+    password = get_password()
+    if not vault.unlock(password):
+        print_error("Failed to unlock vault. Wrong password?")
+        sys.exit(1)
+
+    try:
+        backup_path = vault.create_backup()
+        print_success(f"Backup created: {backup_path}")
+        print_info(f"Credentials backed up: {vault.get_credential_count()}")
+    except Exception as e:
+        print_error(f"Backup failed: {e}")
+        sys.exit(1)
+
+
+def cmd_backups(args):
+    """List available backups"""
+    vault = Vault()
+    backups = vault.list_backups()
+
+    if not backups:
+        print_info("No backups found")
+        return
+
+    print_info(f"Found {len(backups)} backup(s):")
+    for backup in backups:
+        size_kb = backup["size"] / 1024
+        print(f"  • {backup['name']} ({size_kb:.1f} KB) - {backup['created']}")
+
+
+def cmd_restore(args):
+    """Restore vault from backup"""
+    from pathlib import Path
+
+    vault = Vault()
+    backup_path = Path(args.backup)
+
+    password = get_password("Master password for backup: ")
+
+    try:
+        if vault.restore_backup(backup_path, password):
+            print_success(f"Restored vault from {backup_path}")
+            print_info(f"Credentials restored: {vault.get_credential_count()}")
+        else:
+            print_error("Failed to restore backup. Wrong password?")
+            sys.exit(1)
+    except Exception as e:
+        print_error(f"Restore failed: {e}")
+        sys.exit(1)
+
+
 def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(
@@ -266,6 +351,23 @@ def main():
     import_parser.add_argument("input", help="Input file path")
     import_parser.add_argument("--decrypt", "-d", action="store_true", help="Decrypt import with password")
     import_parser.set_defaults(func=cmd_import)
+
+    # Password change command
+    passwd_parser = subparsers.add_parser("passwd", help="Change master password")
+    passwd_parser.set_defaults(func=cmd_passwd)
+
+    # Backup command
+    backup_parser = subparsers.add_parser("backup", help="Create a vault backup")
+    backup_parser.set_defaults(func=cmd_backup)
+
+    # List backups command
+    backups_parser = subparsers.add_parser("backups", help="List available backups")
+    backups_parser.set_defaults(func=cmd_backups)
+
+    # Restore command
+    restore_parser = subparsers.add_parser("restore", help="Restore vault from backup")
+    restore_parser.add_argument("backup", help="Backup file path")
+    restore_parser.set_defaults(func=cmd_restore)
 
     # Parse arguments
     args = parser.parse_args()

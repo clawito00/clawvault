@@ -23,6 +23,7 @@ Encrypted local credential store with a clean CLI interface. Lightweight, privac
 - [x] AES-256 encryption via Fernet
 - [ ] Auto-lock after timeout
 - [x] Secure memory handling (no plaintext in logs)
+- [x] Password change capability
 
 ### UX
 - [x] Colorized output
@@ -30,6 +31,7 @@ Encrypted local credential store with a clean CLI interface. Lightweight, privac
 - [x] Search/filter credentials
 - [x] Export/import (encrypted)
 - [x] Backup to file
+- [x] Restore from backup
 
 ## CLI Design
 
@@ -95,17 +97,16 @@ clawvault/
    - Export/import functionality
    - Basic test suite
 
-3. **Phase 3: Advanced features** (Next)
-   - Export/import
-   - Auto-lock timeout
-   - Password change
-   - Backup system
+3. **Phase 3: Advanced features** ✅ COMPLETE
+   - Password change command
+   - Backup system (create, list, restore)
+   - Backup directory management
 
-4. **Phase 4: Polish**
-   - Comprehensive README
-   - Unit tests
+4. **Phase 4: Polish** (Next)
+   - Auto-lock timeout (optional)
+   - Tab completion for service names
+   - Comprehensive README update
    - PyPI package
-   - Documentation
 
 ## Security Considerations
 

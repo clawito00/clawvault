@@ -185,3 +185,98 @@ class Vault:
             for cred in self._data.credentials
             if query_lower in cred["service"].lower()
         ]
+
+    def change_password(self, old_password: str, new_password: str) -> bool:
+        """Change the master password by re-encrypting all credentials"""
+        if not self._fernet:
+            raise RuntimeError("Vault is locked")
+
+        # Verify old password by trying to decrypt all credentials
+        decrypted_keys = []
+        for cred in self._data.credentials:
+            try:
+                key = self._fernet.decrypt(cred["encrypted_key"].encode()).decode()
+                decrypted_keys.append((cred, key))
+            except Exception:
+                return False
+
+        # Generate new salt and derive new key
+        new_salt = os.urandom(16)
+        new_salt_b64 = base64.urlsafe_b64encode(new_salt).decode()
+        new_key = self._derive_key(new_password, new_salt)
+        new_fernet = Fernet(new_key)
+
+        # Re-encrypt all credentials with new key
+        for cred, key in decrypted_keys:
+            cred["encrypted_key"] = new_fernet.encrypt(key.encode()).decode()
+
+        # Update salt and save
+        self._data.salt = new_salt_b64
+        self._fernet = new_fernet
+        self._save_vault()
+
+        return True
+
+    def get_credential_count(self) -> int:
+        """Get total number of credentials"""
+        return len(self._data.credentials)
+
+    def create_backup(self, backup_dir: Optional[Path] = None) -> Path:
+        """Create a timestamped backup of the vault"""
+        import shutil
+
+        backup_dir = backup_dir or (self.vault_path.parent / "backups")
+        backup_dir.mkdir(parents=True, exist_ok=True)
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_path = backup_dir / f"vault_backup_{timestamp}.json"
+
+        shutil.copy2(self.vault_path, backup_path)
+        os.chmod(backup_path, 0o600)
+
+        return backup_path
+
+    def list_backups(self, backup_dir: Optional[Path] = None) -> List[dict]:
+        """List all available backups"""
+        backup_dir = backup_dir or (self.vault_path.parent / "backups")
+
+        if not backup_dir.exists():
+            return []
+
+        backups = []
+        for backup_file in sorted(backup_dir.glob("vault_backup_*.json"), reverse=True):
+            stat = backup_file.stat()
+            backups.append({
+                "path": str(backup_file),
+                "name": backup_file.name,
+                "size": stat.st_size,
+                "created": datetime.fromtimestamp(stat.st_mtime).isoformat()
+            })
+
+        return backups
+
+    def restore_backup(self, backup_path: Path, password: str) -> bool:
+        """Restore vault from a backup file"""
+        import shutil
+
+        if not backup_path.exists():
+            raise ValueError(f"Backup file not found: {backup_path}")
+
+        # Create a temporary vault to verify the backup
+        temp_path = self.vault_path.with_suffix(".tmp")
+        shutil.copy2(backup_path, temp_path)
+
+        # Try to unlock with the temp path
+        temp_vault = Vault(vault_path=temp_path)
+        if not temp_vault.unlock(password):
+            temp_path.unlink()
+            return False
+
+        # Backup is valid, replace current vault
+        shutil.move(temp_path, self.vault_path)
+
+        # Reload the vault
+        self._data = self._load_vault()
+        self.unlock(password)
+
+        return True
