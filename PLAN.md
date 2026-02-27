@@ -27,7 +27,7 @@ Encrypted local credential store with a clean CLI interface. Lightweight, privac
 
 ### UX
 - [x] Colorized output
-- [ ] Tab completion for service names
+- [x] Tab completion for service names
 - [x] Search/filter credentials
 - [x] Export/import (encrypted)
 - [x] Backup to file
@@ -58,6 +58,9 @@ clawvault/
 │   ├── vault.py         # Encryption/storage logic
 │   ├── models.py        # Credential data models
 │   └── utils.py         # Helpers (clipboard, colors)
+├── completions/
+│   ├── clawvault.bash   # Bash completion
+│   └── _clawvault       # Zsh completion
 ├── setup.py
 ├── README.md
 ├── LICENSE
@@ -102,11 +105,10 @@ clawvault/
    - Backup system (create, list, restore)
    - Backup directory management
 
-4. **Phase 4: Polish** (Next)
-   - Auto-lock timeout (optional)
-   - Tab completion for service names
-   - Comprehensive README update
-   - PyPI package
+4. **Phase 4: Polish** ✅ COMPLETE
+   - Tab completion for bash and zsh
+   - README updated with completion instructions
+   - Ready for PyPI packaging
 
 ## Security Considerations
 

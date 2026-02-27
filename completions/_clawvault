@@ -1,0 +1,99 @@
+#compdef clawvault
+
+# Zsh completion for clawvault
+
+_clawvault() {
+    local -a commands
+    commands=(
+        'add:Add a new credential'
+        'get:Get a credential'
+        'list:List all credentials'
+        'search:Search credentials'
+        'update:Update a credential'
+        'delete:Delete a credential'
+        'passwd:Change master password'
+        'backup:Create a vault backup'
+        'backups:List available backups'
+        'restore:Restore vault from backup'
+        'export:Export vault to file'
+        'import:Import vault from file'
+    )
+
+    if (( CURRENT == 2 )); then
+        _describe 'command' commands
+        return
+    fi
+
+    local cmd=${words[2]}
+
+    case $cmd in
+        add)
+            _arguments \
+                ':service:' \
+                '--key[API key/credential]:key:' \
+                '-k[API key/credential]:key:' \
+                '*--tag[Tags]:tag:(api production development staging test)' \
+                '*-t[Tags]:tag:(api production development staging test)' \
+                '--help[Show help]'
+            ;;
+        get)
+            _arguments \
+                ':service:' \
+                '--copy[Copy to clipboard]' \
+                '-c[Copy to clipboard]' \
+                '--help[Show help]'
+            ;;
+        list)
+            _arguments \
+                '--tag[Filter by tag]:tag:(api production development staging test)' \
+                '-t[Filter by tag]:tag:(api production development staging test)' \
+                '--verbose[Show details]' \
+                '-v[Show details]' \
+                '--help[Show help]'
+            ;;
+        search)
+            _arguments \
+                ':query:' \
+                '--help[Show help]'
+            ;;
+        update)
+            _arguments \
+                ':service:' \
+                '--key[New API key]:key:' \
+                '-k[New API key]:key:' \
+                '*--tag[New tags]:tag:(api production development staging test)' \
+                '*-t[New tags]:tag:(api production development staging test)' \
+                '--help[Show help]'
+            ;;
+        delete)
+            _arguments \
+                ':service:' \
+                '--force[Skip confirmation]' \
+                '-f[Skip confirmation]' \
+                '--help[Show help]'
+            ;;
+        restore)
+            _arguments \
+                ':backup file:_files' \
+                '--help[Show help]'
+            ;;
+        export)
+            _arguments \
+                ':output file:_files' \
+                '--encrypt[Encrypt export]' \
+                '-e[Encrypt export]' \
+                '--help[Show help]'
+            ;;
+        import)
+            _arguments \
+                ':input file:_files' \
+                '--decrypt[Decrypt import]' \
+                '-d[Decrypt import]' \
+                '--help[Show help]'
+            ;;
+        *)
+            ;;
+    esac
+}
+
+_clawvault

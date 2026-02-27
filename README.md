@@ -26,6 +26,28 @@ cd clawvault
 pip install -e .
 ```
 
+## Shell Completion
+
+ClawVault includes shell completion scripts for bash and zsh.
+
+### Bash
+
+```bash
+# Add to your ~/.bashrc
+source /path/to/clawvault/completions/clawvault.bash
+```
+
+### Zsh
+
+```bash
+# Copy completion file to your fpath
+cp completions/_clawvault ~/.zsh/completion/
+
+# Or add to your ~/.zshrc
+fpath=(/path/to/clawvault/completions $fpath)
+autoload -U compinit && compinit
+```
+
 ## Quick Start
 
 ### Initialize Vault
