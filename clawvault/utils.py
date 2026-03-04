@@ -1,5 +1,6 @@
 """Utility functions for CLI"""
 
+import os
 import sys
 import subprocess
 from typing import Optional
@@ -62,7 +63,18 @@ def copy_to_clipboard(text: str) -> bool:
 
 
 def get_password(prompt: str = "Master password: ") -> str:
-    """Get password from user input (hidden)"""
+    """Get password from environment variable or user input.
+    
+    Checks CLAWVAULT_PASSWORD env var first, then falls back to interactive input.
+    Using the env var is less secure (visible in process list) but enables
+    non-interactive usage (scripts, cron, etc.).
+    """
+    # Check environment variable first
+    env_password = os.environ.get("CLAWVAULT_PASSWORD")
+    if env_password:
+        return env_password
+    
+    # Fall back to interactive input
     try:
         import getpass
         return getpass.getpass(prompt)

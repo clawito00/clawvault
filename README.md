@@ -8,6 +8,7 @@
 
 - 🔐 **AES-256 encryption** via Fernet
 - 🔑 **Master password** with PBKDF2 key derivation
+- 🤖 **Non-interactive mode** via environment variable
 - 📋 **Clipboard support** for easy copying
 - 🏷️ **Tagging system** for organization
 - 🔍 **Search & filter** capabilities
@@ -148,6 +149,27 @@ clawvault import backup.enc --decrypt
 ```bash
 clawvault passwd
 ```
+
+## Non-Interactive Mode
+
+For scripts, cron jobs, or automation, you can provide the master password via the `CLAWVAULT_PASSWORD` environment variable:
+
+```bash
+# Use in scripts
+export CLAWVAULT_PASSWORD="your-master-password"
+clawvault list
+
+# One-liner
+CLAWVAULT_PASSWORD="your-master-password" clawvault get github
+
+# In cron
+*/5 * * * * CLAWVAULT_PASSWORD="your-master-password" /home/user/.local/bin/clawvault get api-key
+```
+
+⚠️ **Security Note:** Environment variables are visible in the process list (`ps aux`) while the command runs. For better security:
+- Use this only in trusted environments
+- Unset the variable immediately after use: `unset CLAWVAULT_PASSWORD`
+- Consider using a dedicated secrets manager for production systems
 
 ## Security
 
